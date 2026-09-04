@@ -1,28 +1,29 @@
 {
-  "name": "assignment-hospital",
+  "name": "hospital-appointment-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Hospital Appointment API using Prisma and PostgreSQL",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "prisma skills sync || exit 0"
+    "test": "ts-node src/test.ts"
+  },
+  "prisma": {
+    "seed": "npx ts-node src/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^5.22.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
     "dotenv": "^17.4.2",
-    "prisma": "^5.22.0"
+    "pg": "^8.23.0",
+    "prisma": "^7.9.1"
   },
   "devDependencies": {
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.2.0",
+    "@types/pg": "^8.23.1",
     "ts-node": "^10.9.2",
-    "tsx": "^4.23.13",
-    "typescript": "^5.9.3"
-  },
-  "prisma": {
-    "seed": "npx ts-node src/seed.ts"
+    "typescript": "^5.4.5"
   }
 }

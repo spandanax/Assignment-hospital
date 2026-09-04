@@ -1,13 +1,20 @@
 import prisma from "./lib/prisma";
 
-export async function createPatient(data: {
+export interface CreatePatientInput {
   name: string;
   email: string;
   phone?: string;
   dateOfBirth?: Date;
-}) {
-  return prisma.patient.create({
-    data,
+}
+
+export async function createPatient(data: CreatePatientInput) {
+  return await prisma.patient.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      dateOfBirth: data.dateOfBirth,
+    },
   });
 }
 
@@ -16,7 +23,7 @@ export async function getPatient(id: number) {
     where: { id },
   });
 
-  if (patient === null) {
+  if (!patient) {
     throw new Error("Patient not found");
   }
 
@@ -24,10 +31,11 @@ export async function getPatient(id: number) {
 }
 
 export async function searchPatients(nameFragment: string) {
-  return prisma.patient.findMany({
+  return await prisma.patient.findMany({
     where: {
       name: {
         contains: nameFragment,
+        mode: "insensitive",
       },
     },
     orderBy: {
@@ -36,18 +44,15 @@ export async function searchPatients(nameFragment: string) {
   });
 }
 
-export async function updatePatientPhone(
-  id: number,
-  phone: string
-) {
-  return prisma.patient.update({
+export async function updatePatientPhone(id: number, phone: string) {
+  return await prisma.patient.update({
     where: { id },
     data: { phone },
   });
 }
 
 export async function deletePatient(id: number) {
-  return prisma.patient.delete({
+  return await prisma.patient.delete({
     where: { id },
   });
 }

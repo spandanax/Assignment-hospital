@@ -1,12 +1,18 @@
 import prisma from "./lib/prisma";
 
-export async function createDoctor(data: {
+export interface CreateDoctorInput {
   name: string;
   specialty: string;
   email: string;
-}) {
-  return prisma.doctor.create({
-    data,
+}
+
+export async function createDoctor(data: CreateDoctorInput) {
+  return await prisma.doctor.create({
+    data: {
+      name: data.name,
+      specialty: data.specialty,
+      email: data.email,
+    },
   });
 }
 
@@ -15,36 +21,29 @@ export async function getDoctor(id: number) {
     where: { id },
   });
 
-  if (doctor === null) {
+  if (!doctor) {
     throw new Error("Doctor not found");
   }
 
   return doctor;
 }
 
-export async function listDoctorsBySpecialty(
-  specialty: string
-) {
-  return prisma.doctor.findMany({
+export async function listDoctorsBySpecialty(specialtyFragment: string) {
+  return await prisma.doctor.findMany({
     where: {
       specialty: {
-        contains: specialty,
+        contains: specialtyFragment,
+        mode: "insensitive",
       },
     },
     orderBy: {
       name: "asc",
     },
-    select: {
-      id: true,
-      name: true,
-      specialty: true,
-      email: true,
-    },
   });
 }
 
 export async function deleteDoctor(id: number) {
-  return prisma.doctor.delete({
+  return await prisma.doctor.delete({
     where: { id },
   });
 }

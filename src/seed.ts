@@ -1,11 +1,15 @@
 import prisma from "./lib/prisma";
 
-async function main() {
+export async function main() {
+  console.log("Seeding database...");
+
+  // 1. Clear existing appointments, patients, and doctors
   await prisma.appointment.deleteMany();
   await prisma.patient.deleteMany();
   await prisma.doctor.deleteMany();
 
-  const drPriya = await prisma.doctor.create({
+  // 2. Seed Doctors
+  const doctorPriya = await prisma.doctor.create({
     data: {
       name: "Dr. Priya Sharma",
       specialty: "Cardiology",
@@ -13,7 +17,7 @@ async function main() {
     },
   });
 
-  const drVikram = await prisma.doctor.create({
+  const doctorVikram = await prisma.doctor.create({
     data: {
       name: "Dr. Vikram Rao",
       specialty: "Neurology",
@@ -21,7 +25,8 @@ async function main() {
     },
   });
 
-  const aditi = await prisma.patient.create({
+  // 3. Seed Patients
+  const patientAditi = await prisma.patient.create({
     data: {
       name: "Aditi Mehra",
       email: "aditi@example.com",
@@ -30,26 +35,24 @@ async function main() {
     },
   });
 
-  const rahul = await prisma.patient.create({
+  const patientRahul = await prisma.patient.create({
     data: {
       name: "Rahul Singh",
       email: "rahul@example.com",
     },
   });
 
+  // 4. Seed Appointment (24 hours from current time)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
   await prisma.appointment.create({
     data: {
-      appointmentDate: new Date(
-        Date.now() + 24 * 60 * 60 * 1000
-      ),
+      patientId: patientAditi.id,
+      doctorId: doctorPriya.id,
+      appointmentDate: tomorrow,
       status: "scheduled",
       notes: "Regular checkup",
-      patient: {
-        connect: { id: aditi.id },
-      },
-      doctor: {
-        connect: { id: drPriya.id },
-      },
     },
   });
 
@@ -58,7 +61,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("Error seeding database:", e);
     process.exit(1);
   })
   .finally(async () => {

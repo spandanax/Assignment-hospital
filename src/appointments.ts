@@ -1,25 +1,20 @@
 import prisma from "./lib/prisma";
 
-export async function bookAppointment(
-  patientId: number,
-  doctorId: number,
-  date: Date,
-  notes?: string
-) {
-  return prisma.appointment.create({
+export interface BookAppointmentInput {
+  patientId: number;
+  doctorId: number;
+  appointmentDate: Date;
+  notes?: string;
+}
+
+export async function bookAppointment(data: BookAppointmentInput) {
+  return await prisma.appointment.create({
     data: {
-      appointmentDate: date,
-      notes: notes ?? null,
-
-      patient: {
-        connect: { id: patientId },
-      },
-
-      doctor: {
-        connect: { id: doctorId },
-      },
+      patientId: data.patientId,
+      doctorId: data.doctorId,
+      appointmentDate: data.appointmentDate,
+      notes: data.notes,
     },
-
     include: {
       patient: {
         select: {
@@ -27,7 +22,6 @@ export async function bookAppointment(
           email: true,
         },
       },
-
       doctor: {
         select: {
           name: true,
@@ -39,26 +33,23 @@ export async function bookAppointment(
 }
 
 export async function getAppointmentFull(id: number) {
-  const appt = await prisma.appointment.findUnique({
+  const appointment = await prisma.appointment.findUnique({
     where: { id },
-
     include: {
       patient: true,
       doctor: true,
     },
   });
 
-  if (appt === null) {
+  if (!appointment) {
     throw new Error("Appointment not found");
   }
 
-  return appt;
+  return appointment;
 }
 
-export async function getDoctorUpcomingAppointments(
-  doctorId: number
-) {
-  return prisma.appointment.findMany({
+export async function getDoctorUpcomingAppointments(doctorId: number) {
+  return await prisma.appointment.findMany({
     where: {
       doctorId,
       status: "scheduled",
@@ -66,11 +57,9 @@ export async function getDoctorUpcomingAppointments(
         gte: new Date(),
       },
     },
-
     orderBy: {
       appointmentDate: "asc",
     },
-
     include: {
       patient: {
         select: {
@@ -86,21 +75,18 @@ export async function setAppointmentStatus(
   id: number,
   status: "scheduled" | "completed" | "cancelled"
 ) {
-  return prisma.appointment.update({
+  return await prisma.appointment.update({
     where: { id },
     data: { status },
   });
 }
 
-export async function cancelAllPatientAppointments(
-  patientId: number
-) {
+export async function cancelAllPatientAppointments(patientId: number) {
   const result = await prisma.appointment.updateMany({
     where: {
       patientId,
       status: "scheduled",
     },
-
     data: {
       status: "cancelled",
     },
@@ -110,7 +96,7 @@ export async function cancelAllPatientAppointments(
 }
 
 export async function deleteAppointment(id: number) {
-  return prisma.appointment.delete({
+  return await prisma.appointment.delete({
     where: { id },
   });
 }
