@@ -42,6 +42,16 @@ export async function listDoctorsBySpecialty(specialtyFragment: string) {
   });
 }
 
+export async function updateDoctor(
+  id: number,
+  data: Partial<Pick<CreateDoctorInput, "name" | "specialty" | "email">>
+) {
+  return await prisma.doctor.update({
+    where: { id },
+    data,
+  });
+}
+
 export async function deleteDoctor(id: number) {
   return await prisma.doctor.delete({
     where: { id },
